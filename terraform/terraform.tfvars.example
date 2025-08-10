@@ -1,0 +1,7 @@
+# AI Service Monitor - Terraform Variables Example
+# Copy this file to terraform.tfvars and fill in your values
+
+project_id  = "ai-log-468502"
+region      = "us-central1"
+zone        = "us-central1-a"
+environment = "dev"

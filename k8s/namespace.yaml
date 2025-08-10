@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ai-monitor
+  labels:
+    name: ai-monitor
+    app: ai-service-monitor

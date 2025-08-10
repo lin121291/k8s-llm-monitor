@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-analyzer
+  namespace: ai-monitor
+  labels:
+    app: llm-analyzer
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: llm-analyzer
+  template:
+    metadata:
+      labels:
+        app: llm-analyzer
+    spec:
+      containers:
+      - name: llm-analyzer
+        image: gcr.io/ai-log-468502/llm-analyzer:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        env:
+        - name: MODEL_NAME
+          value: "llama-3.2-3b"
+        - name: MAX_TOKENS
+          value: "2048"
+        - name: TEMPERATURE
+          value: "0.1"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "800m"
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+      volumes:
+      - name: config
+        configMap:
+          name: monitor-config

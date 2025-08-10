@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auto-scaler
+  namespace: ai-monitor
+  labels:
+    app: auto-scaler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auto-scaler
+  template:
+    metadata:
+      labels:
+        app: auto-scaler
+    spec:
+      serviceAccountName: ai-monitor-sa
+      containers:
+      - name: auto-scaler
+        image: gcr.io/ai-log-468502/auto-scaler:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8001
+        env:
+        - name: PREDICTION_WINDOW
+          value: "30m"
+        - name: SCALE_THRESHOLD
+          value: "0.8"
+        - name: MIN_REPLICAS
+          value: "2"
+        - name: MAX_REPLICAS
+          value: "20"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1"
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+      volumes:
+      - name: config
+        configMap:
+          name: monitor-config

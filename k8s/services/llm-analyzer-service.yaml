@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-analyzer-service
+  namespace: ai-monitor
+  labels:
+    app: llm-analyzer
+spec:
+  selector:
+    app: llm-analyzer
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+  type: ClusterIP
