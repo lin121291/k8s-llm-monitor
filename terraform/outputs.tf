@@ -1,48 +1,35 @@
-# AI Service Monitor - Terraform Outputs
-# This file defines all output values from the Terraform configuration
-
-# GKE Cluster Information
 output "cluster_name" {
-  description = "GKE cluster name"
-  value       = google_container_cluster.gke.name
+  description = "GKE Cluster Name"
+  value       = google_container_cluster.primary.name
 }
 
 output "cluster_endpoint" {
-  description = "GKE cluster endpoint"
-  value       = google_container_cluster.gke.endpoint
+  description = "GKE Cluster Endpoint"
+  value       = google_container_cluster.primary.endpoint
   sensitive   = true
 }
 
-output "get_credentials_command" {
-  description = "Command to get GKE credentials"
-  value       = "gcloud container clusters get-credentials ${google_container_cluster.gke.name} --region ${var.region} --project ${var.project_id}"
+output "cluster_location" {
+  description = "GKE Cluster Location"
+  value       = google_container_cluster.primary.location
 }
 
-# Project Information
-output "project_id" {
-  description = "GCP project ID"
-  value       = var.project_id
+output "vpc_name" {
+  description = "VPC Name"
+  value       = google_compute_network.vpc.name
 }
 
-output "region" {
-  description = "GCP region"
-  value       = var.region
+output "subnet_name" {
+  description = "Subnet Name"
+  value       = google_compute_subnetwork.subnet.name
 }
 
-# Database Information
-output "database_connection" {
-  description = "PostgreSQL database connection information"
-  value = {
-    host     = google_sql_database_instance.postgres.private_ip_address
-    port     = 5432
-    database = google_sql_database.app_db.name
-    username = google_sql_user.app_user.name
-  }
-  sensitive = true
+output "service_account_email" {
+  description = "Kubernetes Service Account Email"
+  value       = google_service_account.kubernetes.email
 }
 
-# Redis Information  
-output "redis_host" {
-  description = "Redis instance host"
-  value       = google_redis_instance.cache.host
+output "kubectl_config_command" {
+  description = "Command to configure kubectl"
+  value       = "gcloud container clusters get-credentials ${google_container_cluster.primary.name} --zone ${google_container_cluster.primary.location} --project ${var.project_id}"
 }

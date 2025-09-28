@@ -1,25 +1,40 @@
-# AI Service Monitor - Terraform Variables
-# This file defines all input variables for the Terraform configuration
-
 variable "project_id" {
-  description = "GCP Project ID"
+  description = "The GCP project ID"
   type        = string
 }
 
 variable "region" {
-  description = "GCP region"
+  description = "The GCP region"
   type        = string
   default     = "us-central1"
 }
 
 variable "zone" {
-  description = "GCP zone"
+  description = "The GCP zone"
   type        = string
   default     = "us-central1-a"
 }
 
-variable "environment" {
-  description = "Environment (dev, staging, prod)"
+variable "cluster_name" {
+  description = "The name of the GKE cluster"
   type        = string
-  default     = "dev"
+  default     = "service-monitor-cluster"
+}
+
+variable "node_count" {
+  description = "Number of nodes in the cluster"
+  type        = number
+  default     = 2
+}
+
+variable "machine_type" {
+  description = "Machine type for cluster nodes"
+  type        = string
+  default     = "e2-medium"
+}
+
+variable "environment" {
+  description = "Environment name"
+  type        = string
+  default     = "demo"
 }

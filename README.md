@@ -1,222 +1,203 @@
-# AI-Powered Service Monitor
+# Service Monitor API
 
-Intelligent service monitoring system using LLM for log analysis and predictive auto-scaling.
+A microservices monitoring API built with FastAPI and Kubernetes for demonstration purposes.
 
-## System Architecture
+## 🚀 Quick Demo
 
-![Architecture](docs/architecture.md)
+This project showcases:
+- **FastAPI** REST API development
+- **Docker** containerization
+- **Kubernetes** microservices deployment
+- **Terraform** infrastructure as code
+- **Minikube** local development
 
-```
-┌─────────────────────────────────────────────┐
-│              GCP Project                    │
-│  ┌─────────────────────────────────────────┐ │
-│  │            VPC Network                  │ │
-│  │  ┌───────────────┐  ┌─────────────────┐ │ │
-│  │  │ GKE Cluster   │  │  Managed Services │ │ │
-│  │  │               │  │                 │ │ │
-│  │  │ ┌───────────┐ │  │ ┌─────────────┐ │ │ │
-│  │  │ │API Gateway│ │  │ │ Cloud SQL   │ │ │ │
-│  │  │ └───────────┘ │  │ │(PostgreSQL) │ │ │ │
-│  │  │               │  │ └─────────────┘ │ │ │
-│  │  │ ┌───────────┐ │  │                 │ │ │
-│  │  │ │LLM        │ │◄─┤ ┌─────────────┐ │ │ │
-│  │  │ │Analyzer   │ │  │ │    Redis    │ │ │ │
-│  │  │ └───────────┘ │  │ │   (Cache)   │ │ │ │
-│  │  │               │  │ └─────────────┘ │ │ │
-│  │  │ ┌───────────┐ │  └─────────────────┘ │ │
-│  │  │ │Auto Scaler│ │                      │ │
-│  │  │ └───────────┘ │                      │ │
-│  │  └───────────────┘                      │ │
-│  └─────────────────────────────────────────┘ │
-└─────────────────────────────────────────────┘
-```
+## 📋 Prerequisites
 
-## Core Features
+### Local Development
+- Docker
+- Minikube
+- kubectl
 
-- **Intelligent Log Analysis**: LLM-powered anomaly detection without predefined rules
-- **Predictive Scaling**: Traffic pattern prediction with proactive resource adjustment
-- **Automated Root Cause Analysis**: Cross-service problem identification
-- **Real-time Alerts**: Context-aware intelligent alerting
+### Cloud Deployment (Optional)
+- Terraform >= 1.0
+- GCP Account with billing enabled
+- gcloud CLI
 
-## Technology Stack
+## 🏃‍♂️ Quick Start
 
-- **Container Orchestration**: Docker + Kubernetes (GKE)  
-- **AI/LLM**: Llama 3.2 + FastAPI
-- **Monitoring**: Prometheus + Grafana
-- **Database**: PostgreSQL + Redis
-- **Language**: Python 3.11+
+### Local Development (Minikube)
 
-## Quick Start
-
-### Option 1: GCP Deployment (Recommended)
 ```bash
-# 1. Environment Setup
-gcloud auth login
-gcloud config set project ai-powered-468303
+# 1. Start minikube
+minikube start
 
-# 2. One-click Deployment
-./scripts/deploy.sh
-
-# 3. Access Services
-kubectl port-forward svc/api-gateway-service 8080:80 -n ai-monitor
-# Open: http://localhost:8080/docs
-```
-
-### Option 2: Local Development
-```bash
-# 1. Environment Setup
-./scripts/dev-setup.sh
-
-# 2. Start Services
-docker-compose up -d
-
-# 3. Access Services
-open http://localhost:8080/docs  # API Documentation
-open http://localhost:3000       # Grafana Dashboard
-```
-
-### Option 3: Manual Deployment
-```bash
-# Infrastructure
-cd terraform && terraform init && terraform apply
-
-# Application Deployment
+# 2. Build and deploy
+./scripts/build.sh
 kubectl apply -f k8s/
+
+# 3. Check deployment
+kubectl get pods -n ai-monitor
+
+# 4. Access API
+kubectl port-forward service/api-gateway-service 8080:80 -n ai-monitor &
+curl http://localhost:8080/health
 ```
 
-## Core Components
-
-| Component | Function | File Location |
-|-----------|----------|---------------|
-| **API Gateway** | REST API Entry Point | `src/api/main.py` |
-| **LLM Analyzer** | Intelligent Log Analysis | `src/monitor/log_analyzer.py` |
-| **Auto Scaler** | Predictive Scaling | `src/monitor/auto_scaler.py` |
-| **Config Manager** | Configuration Management | `src/monitor/config.py` |
-
-## Project Structure
-
-```
-AI-Powered/                 # 264KB Lightweight Project
-├── src/                    # Core Code
-│   ├── api/               # FastAPI Service
-│   └── monitor/           # Monitoring Logic
-├── terraform/             # Simplified IaC (3 files)
-├── k8s/                   # K8s Deployment Configuration
-├── scripts/               # Automation Scripts (5 scripts)
-├── .github/workflows/     # CI/CD (1 file)
-├── monitoring/            # Grafana + Prometheus
-├── tests/                 # Test Code
-└── config/               # Application Configuration
-```
-
-## Common Commands
+### Cloud Deployment (GCP)
 
 ```bash
-# Quick Start
-./scripts/dev-setup.sh      # Local development environment
-./scripts/deploy.sh         # Deploy to GCP
-./scripts/cleanup.sh        # Clean up resources
+# 1. Configure Terraform variables
+cd terraform
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars with your GCP project ID
 
-# Development Workflow
-./scripts/build.sh          # Build images
-./scripts/test.sh           # Run tests
-docker-compose up -d        # Local services
+# 2. Deploy infrastructure
+terraform init
+terraform plan
+terraform apply
 
-# Manual Deployment
-cd terraform && terraform apply
+# 3. Configure kubectl
+gcloud container clusters get-credentials service-monitor-cluster \
+  --zone us-central1-a --project your-project-id
+
+# 4. Deploy application
+kubectl apply -f ../k8s/
+
+# 5. Get external IP
+kubectl get service api-gateway-service -n ai-monitor
+```
+
+## 🛠 Architecture
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   API Gateway   │    │  Log Analyzer   │    │   Auto Scaler   │
+│   (Port 8080)   │────│   (Port 8000)   │    │   (Port 8001)   │
+│                 │    │                 │    │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+## 📡 API Endpoints
+
+| Endpoint | Method | Description |
+|----------|---------|-------------|
+| `/health` | GET | Health check |
+| `/health/detailed` | GET | Detailed system status |
+| `/analyze/logs` | POST | Log analysis endpoint |
+| `/scale/predict` | POST | Scaling prediction |
+| `/services` | GET | List monitored services |
+| `/services/{service}/status` | GET | Service status |
+
+## 🧪 Testing
+
+```bash
+# Basic health check
+curl http://localhost:8080/health
+
+# Detailed health status
+curl http://localhost:8080/health/detailed
+
+# Mock log analysis
+curl -X POST http://localhost:8080/analyze/logs \
+  -H "Content-Type: application/json" \
+  -d '{"logs": ["error log example"]}'
+
+# Service list
+curl http://localhost:8080/services
+```
+
+## 🐳 Docker Commands
+
+```bash
+# Build image
+docker build -t service-monitor .
+
+# Run locally
+docker run -p 8080:8080 service-monitor
+```
+
+## ☸️ Kubernetes Commands
+
+```bash
+# Deploy all components
 kubectl apply -f k8s/
+
+# Check pods
+kubectl get pods -n ai-monitor
+
+# Check services
+kubectl get services -n ai-monitor
+
+# View logs
+kubectl logs -f deployment/api-gateway -n ai-monitor
+
+# Scale deployment
+kubectl scale deployment api-gateway --replicas=3 -n ai-monitor
+
+# Clean up
+kubectl delete namespace ai-monitor
 ```
 
-## Troubleshooting
+## 📁 Project Structure
 
-### Common Issues
+```
+service-monitor/
+├── src/api/
+│   ├── __init__.py
+│   ├── main.py              # FastAPI application
+│   └── models.py            # Pydantic models
+├── k8s/
+│   ├── namespace.yaml       # Kubernetes namespace
+│   ├── rbac.yaml           # RBAC configuration
+│   ├── deployments/        # Application deployments
+│   ├── services/           # Service definitions
+│   └── configmaps/         # Configuration
+├── terraform/
+│   ├── main.tf             # Infrastructure resources
+│   ├── variables.tf        # Input variables
+│   ├── outputs.tf          # Output values
+│   ├── providers.tf        # Provider configuration
+│   └── terraform.tfvars.example # Example variables
+├── scripts/
+│   └── build.sh            # Build script for minikube
+├── Dockerfile              # Container definition
+├── requirements.txt        # Python dependencies
+└── README.md              # This file
+```
 
-**GKE Cluster Creation Failed**
+## 🔧 Technologies Used
+
+- **FastAPI** - Modern Python web framework
+- **Docker** - Containerization
+- **Kubernetes** - Container orchestration
+- **Terraform** - Infrastructure as code
+- **GCP/GKE** - Cloud platform and managed Kubernetes
+- **Minikube** - Local Kubernetes cluster
+- **Python 3.11** - Programming language
+
+## 🎯 Demo Points
+
+1. **Microservices Architecture** - Multiple services working together
+2. **Infrastructure as Code** - Terraform for reproducible deployments
+3. **Container Orchestration** - Kubernetes deployment and scaling
+4. **API Design** - RESTful endpoints with proper HTTP methods
+5. **Local Development** - Complete development environment setup
+6. **Cloud-Native** - GCP/GKE production deployment
+7. **Monitoring Concept** - Service health checks and status monitoring
+
+## 🚀 Deployment Options
+
+| Environment | Tool | Use Case |
+|-------------|------|----------|
+| **Local** | Minikube | Development, Testing, Demo |
+| **Cloud** | Terraform + GKE | Production, Staging |
+
+### Quick Cloud Demo
 ```bash
-# Check if APIs are enabled
-gcloud services list --enabled --project=ai-powered-468303
+cd terraform && terraform apply -auto-approve
+# Infrastructure ready in ~5 minutes
 ```
 
-**Pod Cannot Start**  
-```bash
-kubectl describe pod <pod-name> -n ai-monitor
-kubectl logs <pod-name> -n ai-monitor
-```
+## 📝 Notes
 
-**Clean Environment**
-```bash
-cd terraform && terraform destroy -auto-approve
-```
-
-## Configuration
-
-Main configuration file located at `config/monitor.yaml`:
-
-```yaml
-llm:
-  provider: "auto"          # auto, ollama, transformers
-  model: "llama3.2"
-  max_tokens: 1000
-
-scaling:
-  min_replicas: 1
-  max_replicas: 10
-  target_cpu: 70
-  
-monitoring:
-  prometheus_url: "http://prometheus:9090"
-  retention_days: 7
-```
-
-## Performance Metrics
-
-- **MTTR Reduction**: 40% faster incident resolution
-- **Resource Optimization**: 25% usage improvement  
-- **False Positive Reduction**: 60% fewer invalid alerts
-- **Automation Rate**: 70% automatic problem resolution
-
-## Accessing Monitoring Dashboard
-
-```bash
-# API Gateway
-kubectl port-forward svc/api-gateway-service 8080:80 -n ai-monitor
-
-# Grafana (if deployed)
-kubectl port-forward svc/prometheus-grafana 3000:80 -n ai-monitor
-
-# Local Development
-open http://localhost:3000       # Grafana
-open http://localhost:8080/docs  # API Documentation
-```
-
-## Cost Estimation
-
-| Component | Monthly Cost (USD) |
-|-----------|--------------------|
-| GKE Management Fee | $74 |
-| 2x e2-medium nodes | $24 |
-| Cloud SQL f1-micro | $9 |
-| Redis 1GB Basic | $25 |
-| Network & Storage | $15 |
-| **Total** | **~$147/month** |
-
-## CI/CD
-
-Project uses GitHub Actions for automation:
-
-```yaml
-# Trigger Conditions
-- Push to main/develop
-- Pull Request
-- Manual dispatch
-
-# Workflow
-1. Testing and code inspection
-2. Build Docker images
-3. Deploy to GKE
-4. Verify service operation
-```
-
-Set Repository Secrets:
-- `GCP_SA_KEY`: GCP Service Account Key
-- `GCP_PROJECT_ID`: ai-powered-468303
+This is a demonstration project showcasing modern containerized application development and deployment practices. The monitoring functionality is simplified for demo purposes.

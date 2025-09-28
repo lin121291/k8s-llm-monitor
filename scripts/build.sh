@@ -2,26 +2,33 @@
 
 set -e
 
-echo "Building AI Service Monitor..."
+echo "Building AI Service Monitor for local minikube..."
 
-# Check Docker
-if ! docker info > /dev/null 2>&1; then
-    echo "Docker not running"
+# Check if minikube is running
+if ! minikube status > /dev/null 2>&1; then
+    echo "Minikube not running. Please start with: minikube start"
     exit 1
 fi
 
-# Get project config from centralized configuration
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ID=${PROJECT_ID:-$(python3 "$SCRIPT_DIR/get_project_config.py" gcp_project_id)}
-REGISTRY=${DOCKER_REGISTRY:-$(python3 "$SCRIPT_DIR/get_project_config.py" docker_registry)}
+# Switch to minikube's Docker environment
+echo "Switching to minikube Docker environment..."
+eval $(minikube docker-env)
 
-echo "Building images..."
-docker build --platform linux/amd64 -t $REGISTRY/ai-monitor:latest .
+# Check Docker
+if ! docker info > /dev/null 2>&1; then
+    echo "Docker not available in minikube environment"
+    exit 1
+fi
+
+echo "Building images in minikube..."
+docker build -t local/ai-monitor:latest .
 
 # Tag for different services
-docker tag $REGISTRY/ai-monitor:latest $REGISTRY/llm-analyzer:latest
-docker tag $REGISTRY/ai-monitor:latest $REGISTRY/auto-scaler:latest
-docker tag $REGISTRY/ai-monitor:latest $REGISTRY/api-gateway:latest
+echo "Tagging images for different services..."
+docker tag local/ai-monitor:latest local/llm-analyzer:latest
+docker tag local/ai-monitor:latest local/auto-scaler:latest
+docker tag local/ai-monitor:latest local/api-gateway:latest
 
 echo "Build completed!"
-echo "Push: docker push $REGISTRY/ai-monitor:latest"
+echo "Images available in minikube:"
+docker images | grep "local/"
