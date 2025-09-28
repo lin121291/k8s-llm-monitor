@@ -1,37 +1,16 @@
-# Multi-platform support (supports both x86_64 and ARM64/Apple Silicon)
+# Simplified Service Monitor API
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
-    curl \
-    wget \
-    git \
-    && rm -rf /var/lib/apt/lists/*
-
-# Set environment variables for multi-platform support
-ENV TORCH_DEVICE=auto
-ENV TRANSFORMERS_CACHE=/app/.cache/transformers
-ENV HF_HOME=/app/.cache/huggingface
-
-# Create cache directories
-RUN mkdir -p /app/.cache/transformers /app/.cache/huggingface
-
 # Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install PyTorch with multi-platform support
-RUN pip install --no-cache-dir torch>=2.1.0 --index-url https://download.pytorch.org/whl/cpu
-
-# Install other dependencies
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy source code
 COPY src/ ./src/
-COPY config/ ./config/
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && \

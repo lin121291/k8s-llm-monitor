@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
       - name: api-gateway
-        image: gcr.io/ai-log-468502/api-gateway:latest
-        imagePullPolicy: Always
+        image: local/api-gateway:latest
+        imagePullPolicy: Never
         ports:
         - containerPort: 8080
         env:

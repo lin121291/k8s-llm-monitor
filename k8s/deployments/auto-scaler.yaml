@@ -18,8 +18,8 @@ spec:
       serviceAccountName: ai-monitor-sa
       containers:
       - name: auto-scaler
-        image: gcr.io/ai-log-468502/auto-scaler:latest
-        imagePullPolicy: Always
+        image: local/auto-scaler:latest
+        imagePullPolicy: Never
         ports:
         - containerPort: 8001
         env:

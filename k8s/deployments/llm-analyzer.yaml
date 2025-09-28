@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
       - name: llm-analyzer
-        image: gcr.io/ai-log-468502/llm-analyzer:latest
-        imagePullPolicy: Always
+        image: local/llm-analyzer:latest
+        imagePullPolicy: Never
         ports:
         - containerPort: 8000
         env:
